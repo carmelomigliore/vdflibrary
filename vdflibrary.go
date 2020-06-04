@@ -1,4 +1,4 @@
-package parserlibrary
+package vdflibrary
 
 import(
 	"log"
