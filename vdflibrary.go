@@ -10,7 +10,7 @@ import(
 	"path/filepath"
 	"encoding/csv"
 	"strings"
-	"reflect"
+//	"reflect"
 
 	"github.com/mediocregopher/radix/v3"
 
