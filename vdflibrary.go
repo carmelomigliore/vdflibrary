@@ -1,36 +1,36 @@
 package vdflibrary
 
-import(
+import (
+	"bufio"
+	"encoding/csv"
 	"fmt"
 	"log"
-	"os"
-	"bufio"
 	"net/http"
-	"sync"
+	"os"
 	"path/filepath"
-	"encoding/csv"
 	"strings"
-//	"reflect"
+	"sync"
+
+	//	"reflect"
 
 	"github.com/mediocregopher/radix/v3"
-
 )
 
 var fileNames = [3]string{"/mnt/app/datalog.dat"}
 var scanner *bufio.Scanner
-var err error 
+var err error
 var file *os.File
 var mutex = &sync.Mutex{}
-var state bool 
+var state bool
 
 func Length() int {
 	return len(fileNames)
 }
 
-func Initial (x int) *bufio.Scanner {
+func Initial(x int) *bufio.Scanner {
 
 	file, err = os.Open(fileNames[x])
- 
+
 	if err != nil {
 		log.Fatalf("failed opening file: %s", err)
 		os.Exit(-1)
@@ -61,7 +61,7 @@ func StateGet() bool {
 //da runnare come una goroutine dentro al driver
 func HealthCheck() int {
 	var OK = 0
-	
+
 	//try to ping core-data
 	_, err := http.Get("http://localhost:48080/api/vi/ping")
 	if err != nil {
@@ -80,47 +80,44 @@ func HealthCheck() int {
 		OK = 1
 	}
 
-
 	return OK
 }
 
-
 // CreateNewDB function is used to create a db
 
- /*
-  * @params		r 				redisql client
-  * @params		databaseName 	name of the new db
-  *
-  */
+/*
+ * @params	r				redisql client
+ * @params	databaseName	name of the new db
+ *
+ */
 
-  func CreateNewDB(r radix.Client, databaseName string) {
+func CreateNewDB(r radix.Client, databaseName string) {
 	err := r.Do(radix.Cmd(nil, "REDISQL.CREATE_DB", databaseName))
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-
 // CreateDBTable function is used to create a table in the DB if it doesn't already exists
 
- /*
-  * 	
-  * 	@params		r 				redisql client
-  * 	@params		databaseName 	name of the new db
-  *		@params		tableName 		name of the table	
-  *		@params		column1 		name of the first column - The first column is also the primry key
-  *		@params		column2			name of the second column
-  *		@params		column3			name of the third column
-  *		@params		column4			name of the forth column
-  *
-  *	This function returns true if there aren't any errors, otherwise false
-  *
-  */
+/*
+ *
+ * 	@params		r 				redisql client
+ * 	@params		databaseName 	name of the new db
+ *	@params		tableName 		name of the table
+ *	@params		column1 		name of the first column - The first column is also the primry key
+ *	@params		column2			name of the second column
+ *	@params		column3			name of the third column
+ *	@params		column4			name of the forth column
+ *
+ *	This function returns true if there aren't any errors, otherwise false
+ *
+ */
 
-  func CreateDBTable(r radix.Client, databaseName string, tableName string, column1 string, column2 string, column3 string, column4 string) (bool){
+func CreateDBTable(r radix.Client, databaseName string, tableName string, column1 string, column2 string, column3 string, column4 string) bool {
 
 	rediSQLcommand := "CREATE TABLE IF NOT EXISTS " + tableName + "(" + column1 + " TEXT PRIMARY KEY, " + column2 + " TEXT, " + column3 + " TEXT, " + column4 + " TEXT" + ");"
-	log.Println("RediSQL Command: ",rediSQLcommand)
+	log.Println("RediSQL Command: ", rediSQLcommand)
 
 	err := r.Do(radix.Cmd(nil, "REDISQL.EXEC", databaseName, rediSQLcommand))
 	if err != nil {
@@ -131,23 +128,22 @@ func HealthCheck() int {
 	}
 }
 
-
 // InsertValuesToDBTable function is used to insert values in the specified table
 
- /*
-  * 	@params		r 						redisql client
-  * 	@params		databaseName 			name of the db
-  *		@params		tableName 				name of the table	
-  *		@params		column1Value 			name of the value that goes in the first column
-  *		@params		column2Value			name of the value that goes in the second column
-  *		@params		column3Value			name of the value that goes in the third column
-  *		@params		column4Value			name of the value that goes in the forth column
-  *
-  *	This function returns true if there aren't any errors, otherwise false
-  *
-  */
+/*
+ * 	@params		r 				redisql client
+ * 	@params		databaseName 	name of the db
+ *	@params		tableName 		name of the table
+ *	@params		column1Value 	name of the value that goes in the first column
+ *	@params		column2Value	name of the value that goes in the second column
+ *	@params		column3Value	name of the value that goes in the third column
+ *	@params		column4Value	name of the value that goes in the forth column
+ *
+ *	This function returns true if there aren't any errors, otherwise false
+ *
+ */
 
-  func InsertValuesToDBTable(r radix.Client, databaseName string, tableName string, column1Value string, column2Value string, column3Value string, column4Value string) (bool){
+func InsertValuesToDBTable(r radix.Client, databaseName string, tableName string, column1Value string, column2Value string, column3Value string, column4Value string) bool {
 
 	InsertElementsToDB := "INSERT INTO " + tableName + " VALUES" + "(" + "'" + column1Value + "'" + "," + "'" + column2Value + "'" + "," + "'" + column3Value + "'" + "," + "'" + column4Value + "'" + ");"
 	err := r.Do(radix.Cmd(nil, "REDISQL.EXEC", databaseName, InsertElementsToDB))
@@ -175,7 +171,7 @@ func visit(files *[]string) filepath.WalkFunc {
 		if filepath.Ext(path) == ".sh" {
 			return nil
 		}
-	
+
 		// Get the file creation timestamp
 		timeStamp := info.ModTime()
 		// Convert the time (format time.Times) to string
@@ -189,24 +185,23 @@ func visit(files *[]string) filepath.WalkFunc {
 	}
 }
 
-
 // GetFilePaths is a function that will read the specified directory and return
 // an array where are saved the files present in that directory
 
 /*
-  * 	@params		r 						redisql client
-  * 	@params		directoryPath 			path of the directory where to read filenames from
-  *
-  */
+ * 	@params		r 				redisql client
+ * 	@params		directoryPath	path of the directory where to read filenames from
+ *
+ */
 
-  func GetDirFilePaths(r radix.Client, directoryPath string) (pathofElements []string) {
+func GetDirFilePaths(r radix.Client, directoryPath string) (pathofElements []string) {
 
 	// Array files of type string to save the files in the format: [path/of/the/file, timestamp]
 	var files []string
 	var records [][]string
 
 	fmt.Println("Directory path:", directoryPath)
-	// Read all files in the directoryPath 
+	// Read all files in the directoryPath
 	err := filepath.Walk(directoryPath, visit(&files))
 	if err != nil {
 		log.Println(err)
@@ -216,7 +211,7 @@ func visit(files *[]string) filepath.WalkFunc {
 	var dirFilePath []string
 
 	// scan all the files
-	for z := 0; z < len(files); z = z+1 {
+	for z := 0; z < len(files); z = z + 1 {
 
 		// assing to the variable filetoread the z-th file
 		filetoread := files[z]
@@ -235,27 +230,25 @@ func visit(files *[]string) filepath.WalkFunc {
 	}
 
 	// return an array with file paths: [path1 path2 path3 ... pathN]
-	return(dirFilePath)
-	
+	return (dirFilePath)
+
 }
-
-
 
 // InitInsertPathsInDB function is used for the initial path insertion in db
 
- /*
-  * 	@params		r 							redisql client
-  * 	@params		databaseName 				name of the db
-  *		@params		tableName 					name of the table	
-  *		@params		pathVector 					a vector that holds file paths [path1, path2 ... pathN]
-  *		@params		fileCreatiionTimeStamp		Holds the timestamp when the file was created
-  *		@params		readFlag					holds the information if the file is alread read or not
-  *		@params		readingTimeStamp			holds the timestamp when the reading was done
-  *
-  *
-  */
+/*
+ * 	@params		r 							redisql client
+ * 	@params		databaseName 				name of the db
+ *	@params		tableName 					name of the table
+ *	@params		pathVector 					a vector that holds file paths [path1, path2 ... pathN]
+ *	@params		fileCreatiionTimeStamp		Holds the timestamp when the file was created
+ *	@params		readFlag					holds the information if the file is alread read or not
+ *	@params		readingTimeStamp			holds the timestamp when the reading was done
+ *
+ *
+ */
 
-  func InitInsertPathsInDB(r radix.Client, databaseName string, tableName string, pathVector []string, fileCreationTimeStamp string, readFlag string, readingTimeStamp string) {
+func InitInsertPathsInDB(r radix.Client, databaseName string, tableName string, pathVector []string, fileCreationTimeStamp string, readFlag string, readingTimeStamp string) {
 
 	if len(pathVector) < 0 {
 		log.Println("Error:", pathVector, "is empty")
@@ -270,22 +263,21 @@ func visit(files *[]string) filepath.WalkFunc {
 	}
 }
 
-
 // TableExists function is used to check if the table is already created
 
- /*
-  * 	@params		r 							redisql client
-  * 	@params		databaseName 				name of the db
-  *		@params		tableName 					name of the table	
-  *
-  *	This function returns true if the table exists, otherwise false
-  *
-  */
+/*
+ * 	@params		r 				redisql client
+ * 	@params		databaseName 	name of the db
+ *	@params		tableName 		name of the table
+ *
+ *	This function returns true if the table exists, otherwise false
+ *
+ */
 
-  func TableExists(r radix.Client, databaseName string, tableName string) (bool) {
+func TableExists(r radix.Client, databaseName string, tableName string) bool {
 
 	var count [][]int
-	countCommand :=  "SELECT COUNT(*) FROM " + tableName + ";"
+	countCommand := "SELECT COUNT(*) FROM " + tableName + ";"
 	message := r.Do(radix.Cmd(&count, "REDISQL.EXEC", databaseName, countCommand))
 	log.Println("Message Error:", message)
 
@@ -299,28 +291,27 @@ func visit(files *[]string) filepath.WalkFunc {
 
 }
 
-
 // GetPathsFromDB function is used to get all the paths already saved in db
 
- /*
-  * 	@params		r 							redisql client
-  * 	@params		databaseName 				name of the db
-  *		@params		tableName 					name of the table	
-  *		@params		filePathColumn 				name of the column where the file path values are saved
-  *
-  *	This function returns true if the table exists, otherwise false
-  *
-  */
+/*
+ * 	@params		r 					redisql client
+ * 	@params		databaseName 		name of the db
+ *	@params		tableName 			name of the table
+ *	@params		filePathColumn 		name of the column where the file path values are saved
+ *
+ *	This function returns true if the table exists, otherwise false
+ *
+ */
 
-  func GetPathsFromDB(r radix.Client, databaseName string, tableName string, filePathColumn string) (DBfilePathArray []string) {
-	
+func GetPathsFromDB(r radix.Client, databaseName string, tableName string, filePathColumn string) (DBfilePathArray []string) {
+
 	var FilesAlreadySavedInDB [][]string
 	getFilePathFromDBcommand := "SELECT " + filePathColumn + " FROM " + tableName + ";"
 	log.Println(getFilePathFromDBcommand)
 	r.Do(radix.Cmd(&FilesAlreadySavedInDB, "REDISQL.EXEC", databaseName, getFilePathFromDBcommand))
 
 	var FilesAlreadySavedInDBArray []string
-	
+
 	for i := 0; i < len(FilesAlreadySavedInDB); i = i + 1 {
 		FilesAlreadySavedInDBArray = append(FilesAlreadySavedInDBArray, FilesAlreadySavedInDB[i][0])
 	}
@@ -330,18 +321,18 @@ func visit(files *[]string) filepath.WalkFunc {
 
 // difference is the function that makes the difference between two arrays
 func difference(a, b []string) []string {
-    target := map[string]bool{}
-    for _, x := range b {
-        target[x] = true
-    }
+	target := map[string]bool{}
+	for _, x := range b {
+		target[x] = true
+	}
 
-    result := []string{}
-    for _, x := range a {
-        if _, ok := target[x]; !ok {
-            result = append(result, x)
-        }
-    }
-    return result
+	result := []string{}
+	for _, x := range a {
+		if _, ok := target[x]; !ok {
+			result = append(result, x)
+		}
+	}
+	return result
 }
 
 // GetPathsOfNewFiles function makes the difference between the vector
@@ -353,22 +344,21 @@ func GetPathsOfNewFiles(currentFilesinDir []string, currentFilesinDB []string) (
 	if len(NewFiles) == 0 {
 		log.Println("There are no new files")
 	}
-		return NewFiles
+	return NewFiles
 }
-
 
 // GetPathOfFilesToReadFromDB function returns an array
 // of files still to be read (read flag is set to false)
- /*
-  * 	@params		r 							redisql client
-  * 	@params		databaseName 				name of the db
-  *		@params		tableName 					name of the table	
-  *		@params		filePathColumn 				name of the column where the file path values are saved
-  *		@params		readFlag					Will be False if the file is not been read yet, otherwise True
-  *
-  *	This function returns an array that holds the paths of files with readFlag = False (files to be read)
-  *
-  */
+/*
+ * 	@params		r 					redisql client
+ * 	@params		databaseName 		name of the db
+ *	@params		tableName 			name of the table
+ *	@params		filePathColumn 		name of the column where the file path values are saved
+ *	@params		readFlag			Will be False if the file is not been read yet, otherwise True
+ *
+ *	This function returns an array that holds the paths of files with readFlag = False (files to be read)
+ *
+ */
 
 func GetPathOfFilesToReadFromDB(r radix.Client, databaseName string, tableName string, filePathColumn string, readFlag string) (filesToRead []string) {
 
@@ -388,11 +378,9 @@ func GetPathOfFilesToReadFromDB(r radix.Client, databaseName string, tableName s
 			ElementsToReadArray = append(ElementsToReadArray, ElementsToRead[i][0])
 		}
 	}
-	
+
 	return ElementsToReadArray
 }
-
-
 
 // SaveRedisDB is a fuction with the scope to save
 // the db data permanently
@@ -409,27 +397,26 @@ func SaveRedisDB(r radix.Client) {
 
 }
 
-
 // InitREDISQLDB function is used to initialize the DB, create the table
 // if it doesn't exists. Insert data for the firt time if the table didn't exists
 // otherwise, check if there are new files and eventually insert them in DB
 
- /*
-  * 	@params		r 							redisql client
-  * 	@params		databaseName 				name of the db
-  *		@params		tableName 					name of the table	
-  *		@params		filePathColumn 				name of the column where the file path values are saved
-  *		@params		column1 					name of the first column - The first column is also the primry key
-  *		@params		column2						name of the second column
-  *		@params		column3						name of the third column
-  *		@params		column4						name of the forth column
-  * 	@params		directoryPath 				path of the directory where to read filenames from
-  *
-  *	This function returns true if the table exists, otherwise false
-  *
-  */
+/*
+ * 	@params		r 				redisql client
+ * 	@params		databaseName 		name of the db
+ *	@params		tableName 			name of the table
+ *	@params		filePathColumn 		name of the column where the file path values are saved
+ *	@params		column1 			name of the first column - The first column is also the primry key
+ *	@params		column2				name of the second column
+ *	@params		column3				name of the third column
+ *	@params		column4				name of the forth column
+ * 	@params		directoryPath 		path of the directory where to read filenames from
+ *
+ *	This function returns true if the table exists, otherwise false
+ *
+ */
 
-  func InitREDISQLDB(r radix.Client, databaseName string, tableName string, column1 string, column2 string, column3 string, column4 string, directoryPath string) {
+func InitREDISQLDB(r radix.Client, databaseName string, tableName string, column1 string, column2 string, column3 string, column4 string, directoryPath string) {
 
 	log.Println("Create DB")
 	CreateNewDB(r, databaseName)
@@ -442,7 +429,7 @@ func SaveRedisDB(r radix.Client) {
 		DirectoryFilesPath := GetDirFilePaths(r, directoryPath)
 		log.Println("Insert all file paths in the DB.")
 		log.Println("NOTE: \t all other table values are set to False")
-		InitInsertPathsInDB(r, databaseName, tableName, DirectoryFilesPath, "False", "False", "False" )
+		InitInsertPathsInDB(r, databaseName, tableName, DirectoryFilesPath, "False", "False", "False")
 		SaveRedisDB(r)
 	} else {
 		log.Println("Table exists")
