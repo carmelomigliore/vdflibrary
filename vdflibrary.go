@@ -88,8 +88,8 @@ func HealthCheck() int {
 // CreateNewDB function is used to create a db
 
  /*
-  * 	@params		r 					redisql client
-  * 	@params		databaseName 		name of the new db
+  * @params		r 				redisql client
+  * @params		databaseName 	name of the new db
   *
   */
 
@@ -333,7 +333,7 @@ func visit(files *[]string) filepath.WalkFunc {
 // of Directory Files path and the vector of file paths already saved in db
 // The function returns an array of the new files present on the directory, if any
 
-GetPathsOfNewFiles(currentFilesinDir []string, currentFilesinDB []string) (NewFiles []string) {
+func GetPathsOfNewFiles(currentFilesinDir []string, currentFilesinDB []string) (NewFiles []string) {
 	NewFiles = difference(DirectoryFiles, FilesAlreadySavedInDBArray)
 	if len(NewFiles) != nil {
 		return NewFiles
