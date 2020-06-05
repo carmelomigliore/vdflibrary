@@ -12,7 +12,7 @@ import(
 	"strings"
 	"reflect"
 
-	"github.com/mediocregopher/radix"
+	"github.com/mediocregopher/radix/v3"
 
 )
 
