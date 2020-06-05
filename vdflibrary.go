@@ -328,18 +328,32 @@ func visit(files *[]string) filepath.WalkFunc {
 	return FilesAlreadySavedInDBArray
 }
 
+// difference is the function that makes the difference between two arrays
+func difference(a, b []string) []string {
+    target := map[string]bool{}
+    for _, x := range b {
+        target[x] = true
+    }
+
+    result := []string{}
+    for _, x := range a {
+        if _, ok := target[x]; !ok {
+            result = append(result, x)
+        }
+    }
+    return result
+}
 
 // GetPathsOfNewFiles function makes the difference between the vector
 // of Directory Files path and the vector of file paths already saved in db
 // The function returns an array of the new files present on the directory, if any
 
 func GetPathsOfNewFiles(currentFilesinDir []string, currentFilesinDB []string) (NewFiles []string) {
-	NewFiles = difference(DirectoryFiles, FilesAlreadySavedInDBArray)
-	if len(NewFiles) != nil {
-		return NewFiles
-	} else {
+	NewFiles = difference(currentFilesinDir, currentFilesinDB)
+	if len(NewFiles) == 0 {
 		log.Println("There are no new files")
 	}
+		return NewFiles
 }
 
 
@@ -418,7 +432,7 @@ func SaveRedisDB(r radix.Client) {
   func InitREDISQLDB(r radix.Client, databaseName string, tableName string, column1 string, column2 string, column3 string, column4 string, directoryPath string) {
 
 	log.Println("Create DB")
-	CreateDB(r)
+	CreateNewDB(r, databaseName)
 	log.Println("Check if table already exists")
 	table := TableExists(r, databaseName, tableName)
 	if table == false {
