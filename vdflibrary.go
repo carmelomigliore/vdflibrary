@@ -449,7 +449,7 @@ func InitREDISQLDB(r radix.Client, databaseName string, tableName string, column
 		log.Println("Table does not exist. Creating table:", tableName)
 		CreateDBTable(r, databaseName, tableName, column1, column2, column3, column4)
 		log.Println("Getting file paths from the directory: ", directoryPath)
-		DirectoryFilesPath := GetDirFilePaths(r, directoryPath)
+		DirectoryFilesPath := GetDirFilePaths(directoryPath)
 		log.Println("Insert all file paths in the DB.")
 		log.Println("NOTE: \t all other table values are set to False")
 		InitInsertPathsInDB(r, databaseName, tableName, DirectoryFilesPath, "False", "False", "False")
@@ -461,7 +461,7 @@ func InitREDISQLDB(r radix.Client, databaseName string, tableName string, column
 		FilesSavedInDB := GetPathsFromDB(r, databaseName, tableName, column1)
 
 		log.Println("Get file paths from the directory")
-		FilesInDirectory := GetDirFilePaths(r, directoryPath)
+		FilesInDirectory := GetDirFilePaths(directoryPath)
 
 		log.Println("Check if there are new files")
 		newFiles := GetPathsOfNewFiles(FilesInDirectory, FilesSavedInDB)
