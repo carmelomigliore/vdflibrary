@@ -16,7 +16,7 @@ import (
 	"github.com/mediocregopher/radix/v3"
 )
 
-var fileNames = [1]string{"./mnt/app/datalog.dat"}
+var fileNames []string
 var scanner *bufio.Scanner
 var err error
 var file *os.File
@@ -26,6 +26,7 @@ var state bool
 //Length function returns the array file names number of elements
 
 func Length() int {
+	fileNames = GetDirFilePaths(os.Getenv("DirectoryPath"))
 	return len(fileNames)
 }
 
