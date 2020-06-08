@@ -16,16 +16,26 @@ import (
 	"github.com/mediocregopher/radix/v3"
 )
 
-var fileNames = [3]string{"/mnt/app/datalog.dat"}
+var fileNames = [1]string{"/mnt/app/datalog.dat"}
 var scanner *bufio.Scanner
 var err error
 var file *os.File
 var mutex = &sync.Mutex{}
 var state bool
 
+//Length function returns the array file names number of elements
+
 func Length() int {
 	return len(fileNames)
 }
+
+//Initial function is used to open the file, taking is name from an array,
+//and to create a new scanner on the new opened file
+/*
+* @params	x	index of the array for the name of the file
+*
+* This function returns the Scanner created on the new opened file
+*/
 
 func Initial(x int) *bufio.Scanner {
 
@@ -41,15 +51,26 @@ func Initial(x int) *bufio.Scanner {
 	return scanner
 }
 
+//Stop function is used to close the file
+
 func Stop() {
 	file.Close()
 }
+
+//StateSet function is used to set the state to a defined value
+
+/*
+* @params	x	value to be assigned to state variable
+*
+*/
 
 func StateSet(x bool) {
 	mutex.Lock()
 	state = x
 	mutex.Unlock()
 }
+
+//StateGet function is used to check the state
 
 func StateGet() bool {
 	mutex.Lock()
@@ -58,7 +79,9 @@ func StateGet() bool {
 	return value
 }
 
-//da runnare come una goroutine dentro al driver
+//HealtCheck is used to verify if core-data and core-metadata are running and 
+//if the parser did not set the state variable to false
+
 func HealthCheck() int {
 	var OK = 0
 
