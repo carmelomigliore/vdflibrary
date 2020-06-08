@@ -13,7 +13,7 @@ import (
 
 	//	"reflect"
 
-	"github.com/mediocregopher/radix"
+	"github.com/mediocregopher/radix/v3"
 )
 
 var fileNames = [1]string{"/mnt/app/datalog.dat"}
