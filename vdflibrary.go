@@ -16,7 +16,7 @@ import (
 	"github.com/mediocregopher/radix/v3"
 )
 
-var fileNames = [1]string{"/mnt/app/datalog.dat"}
+var fileNames = [1]string{"./mnt/app/datalog.dat"}
 var scanner *bufio.Scanner
 var err error
 var file *os.File
