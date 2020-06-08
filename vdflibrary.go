@@ -212,12 +212,12 @@ func visit(files *[]string) filepath.WalkFunc {
 // an array where are saved the files present in that directory
 
 /*
- * 	@params		r 				redisql client
+ * 
  * 	@params		directoryPath	path of the directory where to read filenames from
  *
  */
 
-func GetDirFilePaths(r radix.Client, directoryPath string) (pathofElements []string) {
+func GetDirFilePaths(directoryPath string) (pathofElements []string) {
 
 	// Array files of type string to save the files in the format: [path/of/the/file, timestamp]
 	var files []string
