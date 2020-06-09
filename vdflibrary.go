@@ -18,6 +18,7 @@ import (
 
 var fileNames []string
 var scanner *bufio.Scanner
+var reader *bufio.Reader
 var err error
 var file *os.File
 var mutex = &sync.Mutex{}
@@ -36,7 +37,7 @@ func Length() int {
 * @params	x	index of the array for the name of the file
 *
 * This function returns the Scanner created on the new opened file
-*/
+ */
 
 func Initial(x int) *bufio.Scanner {
 
@@ -52,6 +53,18 @@ func Initial(x int) *bufio.Scanner {
 	return scanner
 }
 
+func InitReader(x int) *bufio.Reader {
+
+	file, err = os.Open(fileNames[x])
+	if err != nil {
+		log.Fatalf("failed opening file: %s", err)
+		os.Exit(-1)
+	} else {
+		reader = bufio.NewReader(file)
+	}
+	return reader
+}
+
 //Stop function is used to close the file
 
 func Stop() {
@@ -63,7 +76,7 @@ func Stop() {
 /*
 * @params	x	value to be assigned to state variable
 *
-*/
+ */
 
 func StateSet(x bool) {
 	mutex.Lock()
@@ -80,7 +93,7 @@ func StateGet() bool {
 	return value
 }
 
-//HealtCheck is used to verify if core-data and core-metadata are running and 
+//HealtCheck is used to verify if core-data and core-metadata are running and
 //if the parser did not set the state variable to false
 
 func HealthCheck() int {
@@ -213,7 +226,7 @@ func visit(files *[]string) filepath.WalkFunc {
 // an array where are saved the files present in that directory
 
 /*
- * 
+ *
  * 	@params		directoryPath	path of the directory where to read filenames from
  *
  */
