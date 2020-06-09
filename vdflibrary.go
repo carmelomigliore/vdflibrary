@@ -56,6 +56,7 @@ func Initial(x int) *bufio.Scanner {
 func InitReader(x int) *bufio.Reader {
 
 	file, err = os.Open(fileNames[x])
+	fmt.Println(fileNames[x])
 	if err != nil {
 		log.Fatalf("failed opening file: %s", err)
 		os.Exit(-1)
